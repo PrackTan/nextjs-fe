@@ -11,15 +11,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Credentials({
       name: "Credentials",
       credentials: {
-        username: {},
-        password: {},
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
         const res = await sendRequest<IBackendRes<ILogin>>({
           url: "http://localhost:8000/api/v1/auth/login",
           method: "POST",
           body: {
-            ...credentials,
+            email: credentials?.email,
+            password: credentials?.password,
           },
         });
         if (res.statusCode === 201) {

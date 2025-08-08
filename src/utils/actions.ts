@@ -2,10 +2,16 @@
 "use server";
 import { signIn } from "@/auth";
 
-export async function authenticate(username: string, password: string) {
+export async function authenticate(email: string, password: string) {
+  console.log(">>>>>>>>>> authenticate function called with:", {
+    email,
+    password,
+  });
+
   try {
+    console.log(">>>>>>>>>> calling signIn...");
     const result = await signIn("credentials", {
-      username: username,
+      email: email, // Sử dụng username field cho NextAuth
       password: password,
       redirect: false,
     });
@@ -15,6 +21,7 @@ export async function authenticate(username: string, password: string) {
     );
     return result;
   } catch (error) {
+    // console.log(">>>>>>>>>> check error from action.ts", error);
     if ((error as any).name === "InvalidEmailPasswordError") {
       return {
         error: "Invalid credentials",
