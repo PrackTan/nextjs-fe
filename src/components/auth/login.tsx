@@ -5,28 +5,55 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { authenticate } from "@/utils/actions";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
+
 const Login = () => {
   const [api, contextHolder] = notification.useNotification();
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const onFinish = async (values: any) => {
-    const { email, password } = values;
-    const data = await authenticate(email, password);
-    console.log(">>>>>>>>>> check data", JSON.stringify(data));
 
-    if (data?.error) {
-      console.log(
-        ">>>>>>>>>> check data error component login.tsx",
-        data?.error
-      );
+  const onFinish = async (values: LoginFormValues) => {
+    setLoading(true);
+    try {
+      const { email, password } = values;
+      const data = await authenticate(email, password);
+      // console.log(">>>>>>>>>> check data error", data?.error);
+      console.log(">>>>>>>>>> check data statusCode", data);
+      if (data?.error) {
+        // console.log(">>>>>>>>>> check data error", data);
+        if (data?.statusCode === 400) {
+          setTimeout(() => {
+            router.push("/verify");
+          }, 1500);
+        }
+        api.error({
+          message: "Lỗi đăng nhập",
+          description: data?.error,
+        });
+      } else if (data) {
+        // NextAuth trả về { ok: true } khi đăng nhập thành công
+        api.success({
+          message: "Đăng nhập thành công!",
+          description: "Bạn sẽ được chuyển hướng đến dashboard",
+        });
+        // Chờ một chút để user thấy notification
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1500);
+      }
+    } catch (error) {
+      console.error("Login error:", error);
       api.error({
-        message: data?.error,
-        description: data?.error,
+        message: "Lỗi hệ thống",
+        description: "Có lỗi xảy ra, vui lòng thử lại!",
       });
-    } else if (data?.success) {
-      notification.success({
-        message: "Đăng nhập thành công!",
-      });
-      router.push("/dashboard");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,8 +104,13 @@ const Login = () => {
               </Form.Item>
 
               <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  Login
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                  style={{ width: "100%" }}
+                >
+                  {loading ? "Đang đăng nhập..." : "Đăng nhập"}
                 </Button>
               </Form.Item>
             </Form>

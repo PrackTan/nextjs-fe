@@ -3,13 +3,13 @@
 import { signIn } from "@/auth";
 
 export async function authenticate(email: string, password: string) {
-  console.log(">>>>>>>>>> authenticate function called with:", {
-    email,
-    password,
-  });
+  // console.log(">>>>>>>>>> authenticate function called with:", {
+  //   email,
+  //   password,
+  // });
 
   try {
-    console.log(">>>>>>>>>> calling signIn...");
+    // console.log(">>>>>>>>>> calling signIn...");
     const result = await signIn("credentials", {
       email: email, // Sử dụng username field cho NextAuth
       password: password,
@@ -31,7 +31,7 @@ export async function authenticate(email: string, password: string) {
     if ((error as any).name === "InactiveAccountError") {
       return {
         error: "Inactive account",
-        statusCode: 401,
+        statusCode: 400,
       };
     }
     return {

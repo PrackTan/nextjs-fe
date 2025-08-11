@@ -23,6 +23,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             password: credentials?.password,
           },
         });
+        // console.log(">>>>>>>>>> check res from auth.ts", res);
         if (res.statusCode === 201) {
           return res.data?.user;
         } else if (+res.statusCode === 401) {
@@ -49,6 +50,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     session: async ({ session, token }) => {
       (session.user as IUser) = token.user as IUser;
       return session;
+    },
+    authorized: async ({ auth }) => {
+      // check if user is active
+      return !!auth;
     },
   },
 });
