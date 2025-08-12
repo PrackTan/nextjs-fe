@@ -3,61 +3,44 @@ import { AdminContext } from "@/library/admin.context";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { Button, Layout } from "antd";
 import { useContext } from "react";
-import { DownOutlined, SmileOutlined } from "@ant-design/icons";
+import { DownOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Dropdown, Space } from "antd";
-import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
+import { signOut } from "next-auth/react";
+interface PropAdminHeader {
+  session: Session;
+}
 
-const AdminHeader = () => {
-  const { data: session, status } = useSession();
-  console.log(">>>>>>>>>> check session", session, status);
+const AdminHeader = (prop: PropAdminHeader) => {
+  // const { data: session, status } = useSession();
+  const { session } = prop;
+  console.log(">>>>>>>>>> check session", session);
   const { Header } = Layout;
   const { collapseMenu, setCollapseMenu } = useContext(AdminContext)!;
-
+  const handleLogout = () => {
+    console.log(">>>>>>>>>> check handleLogout - START");
+    try {
+      console.log(">>>>>>>>>> calling signOut...");
+      signOut({ callbackUrl: "/auth/login" });
+      console.log(">>>>>>>>>> signOut called successfully");
+    } catch (error) {
+      console.error(">>>>>>>>>> Error in handleLogout:", error);
+    }
+  };
   const items: MenuProps["items"] = [
     {
       key: "1",
-      label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.antgroup.com"
-        >
-          1st menu item
-        </a>
-      ),
+      label: "Setting",
     },
     {
       key: "2",
-      label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.aliyun.com"
-        >
-          2nd menu item (disabled)
-        </a>
-      ),
-      icon: <SmileOutlined />,
-      disabled: true,
-    },
-    {
-      key: "3",
-      label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.luohanacademy.com"
-        >
-          3rd menu item (disabled)
-        </a>
-      ),
-      disabled: true,
-    },
-    {
-      key: "4",
       danger: true,
-      label: "a danger item",
+      label: "Logout",
+      onClick: () => {
+        console.log(">>>>>>>>>> Menu item clicked directly");
+        handleLogout();
+      },
     },
   ];
 

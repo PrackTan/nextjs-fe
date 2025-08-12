@@ -19,7 +19,12 @@ declare global {
     statusCode: number | string;
     data?: T;
   }
-
+  interface IRegister {
+    _id: string;
+    email: string;
+    password: string;
+    name: string;
+  }
   interface IModelPaginate<T> {
     meta: {
       current: number;
