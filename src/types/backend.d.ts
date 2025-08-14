@@ -46,4 +46,8 @@ declare global {
     name: string;
     email: string;
   }
+  interface LoginFormValues {
+    email: string;
+    password: string;
+  }
 }

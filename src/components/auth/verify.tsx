@@ -14,40 +14,40 @@ export default function Verify(props: any) {
   const [api, contextHolder] = notification.useNotification();
   const [loading, setLoading] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   const onFinish = async (values: any) => {
-  //     setLoading(true);
-  //     const { _id, code } = values;
-  //     console.log(">>>>>>>>>> check _id", _id);
-  //     console.log(">>>>>>>>>> check code", code);
-  //     const res = await sendRequest<IBackendRes<IRegister>>({
-  //       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/send-mail-otp`,
-  //       method: "POST",
-  //       body: {
-  //         _id,
-  //         code,
-  //       },
-  //     });
-  //     console.log(">>>>>>>>>> check res", res);
-  //     if (res.data) {
-  //       api.success({
-  //         message: "Xác thực thành công",
-  //         description: "Vui lòng đăng nhập để tiếp tục",
-  //         duration: 1500,
-  //       });
-  //       setTimeout(() => {
-  //         router.push("/auth/login");
-  //       }, 1500);
-  //     } else {
-  //       api.error({
-  //         message: "Lỗi xác thực",
-  //         description: res.error as string,
-  //       });
-  //     }
-  //     setLoading(false);
-  //   };
+  const onFinish = async (values: any) => {
+    setLoading(true);
+    const { id, code } = values;
+    console.log(">>>>>>>>>> check id", id);
+    console.log(">>>>>>>>>> check code", code);
+    const res = await sendRequest<IBackendRes<IRegister>>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/check-code`,
+      method: "POST",
+      body: {
+        _id: id,
+        codeId: code,
+      },
+    });
+    console.log(">>>>>>>>>> check res", res);
+    if (res.data) {
+      api.success({
+        message: "Xác thực thành công",
+        description: "Vui lòng đăng nhập để tiếp tục",
+        duration: 1500,
+      });
+      setTimeout(() => {
+        router.push("/auth/login");
+      }, 1500);
+    } else {
+      api.error({
+        message: "Lỗi xác thực",
+        description: res.message as string,
+      });
+    }
+    setLoading(false);
+  };
   const onResendCode = async () => {
     const res = await sendRequest<IBackendRes<IRegister>>({
-      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/verify/resend-mail-otp`,
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/resend-mail-otp`,
       method: "POST",
       body: {
         _id: id,
@@ -66,6 +66,7 @@ export default function Verify(props: any) {
   };
   return (
     <>
+      {id}
       {contextHolder}
       <Row justify={"center"} style={{ marginTop: "30px" }}>
         <Col xs={24} md={16} lg={8}>

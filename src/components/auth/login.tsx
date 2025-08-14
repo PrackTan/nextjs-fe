@@ -6,30 +6,33 @@ import Link from "next/link";
 import { authenticate } from "@/utils/actions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-interface LoginFormValues {
-  email: string;
-  password: string;
-}
+import ModalReactive from "./modal.reactive";
+import ModalChangePassword from "./modal.change.password";
 
 const Login = () => {
   const [api, contextHolder] = notification.useNotification();
   const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [isModalChangePasswordOpen, setIsModalChangePasswordOpen] =
+    useState(false);
+
   const router = useRouter();
 
   const onFinish = async (values: LoginFormValues) => {
     setLoading(true);
     try {
       const { email, password } = values;
+      setUserEmail("");
       const data = await authenticate(email, password);
       // console.log(">>>>>>>>>> check data error", data?.error);
       console.log(">>>>>>>>>> check data statusCode", data);
       if (data?.error) {
         // console.log(">>>>>>>>>> check data error", data);
         if (data?.statusCode === 400) {
-          setTimeout(() => {
-            router.push("/verify");
-          }, 1500);
+          setIsModalOpen(true);
+          setUserEmail(email);
+          return;
         }
         api.error({
           message: "Lỗi đăng nhập",
@@ -122,9 +125,27 @@ const Login = () => {
               Chưa có tài khoản?{" "}
               <Link href={"/auth/register"}>Đăng ký tại đây</Link>
             </div>
+            <div style={{ textAlign: "center" }}>
+              <Button
+                type="link"
+                onClick={() => setIsModalChangePasswordOpen(true)}
+              >
+                Quên mật khẩu
+              </Button>
+            </div>
           </fieldset>
         </Col>
       </Row>
+      <ModalReactive
+        userEmail={userEmail}
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
+      <ModalChangePassword
+        userEmail={userEmail}
+        isModalOpen={isModalChangePasswordOpen}
+        setIsModalOpen={setIsModalChangePasswordOpen}
+      />
     </>
   );
 };
