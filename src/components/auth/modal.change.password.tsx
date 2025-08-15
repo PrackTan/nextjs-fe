@@ -26,17 +26,29 @@ const ModalChangePassword = (props: any) => {
   const [email, setEmail] = useState("");
   const [userId, setUserId] = useState("");
   console.log("check userEmail", userEmail);
+
   useEffect(() => {
     if (userEmail) {
       form.setFieldsValue({ email: userEmail });
     }
   }, [userEmail, form]);
+
+  // Reset modal khi đóng
+  useEffect(() => {
+    if (!isModalOpen) {
+      setCurrent(0);
+      setEmail("");
+      setUserId("");
+      form.resetFields();
+    }
+  }, [isModalOpen, form]);
+
   if (!hasMounted) return <></>;
 
   const onFinishStep1 = async (values: LoginFormValues) => {
     const { email } = values;
     const res = await sendRequest<IBackendRes<IRegister>>({
-      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/retry-mail-otp`,
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/send-forgot-password-mail`,
       method: "POST",
       body: {
         email: email,
@@ -75,9 +87,41 @@ const ModalChangePassword = (props: any) => {
       });
     }
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onFinishStep3 = async (values: any) => {
+    const { password, confirmPassword } = values;
+    console.log("check password", password, confirmPassword);
+    const res = await sendRequest<IBackendRes<IRegister>>({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/forgot-password`,
+      method: "POST",
+      body: {
+        email: email,
+        password: password,
+      },
+    });
+    if (res.data) {
+      setCurrent(3);
+      api.success({
+        message: "Mật khẩu đã được thay đổi",
+      });
+      setTimeout(() => {
+        setIsModalOpen(false);
+        // Reset modal về trạng thái ban đầu
+        setCurrent(0);
+        setEmail("");
+        setUserId("");
+        form.resetFields();
+      }, 3000);
+    } else {
+      api.error({
+        message: "Lỗi thay đổi mật khẩu",
+        description: res.message as string,
+      });
+    }
+  };
   const onResendCode = async () => {
     const res = await sendRequest<IBackendRes<IRegister>>({
-      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/retry-mail-otp`,
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/send-forgot-password-mail`,
       method: "POST",
       body: {
         email: email,
@@ -111,7 +155,7 @@ const ModalChangePassword = (props: any) => {
             current={current}
             items={[
               {
-                title: "Login",
+                title: "Email",
                 status: current === 0 ? "finish" : "wait",
                 icon: <UserOutlined />,
               },
@@ -214,10 +258,10 @@ const ModalChangePassword = (props: any) => {
           )}
           {current === 2 && (
             <div>
-              <h1>Thay đổi mật khẩu</h1>
+              <h1 style={{ textAlign: "center" }}>Thay đổi mật khẩu</h1>
               <Form
                 name="basic"
-                onFinish={onFinishStep2}
+                onFinish={onFinishStep3}
                 autoComplete="off"
                 layout="vertical"
               >
@@ -245,40 +289,35 @@ const ModalChangePassword = (props: any) => {
                       required: true,
                       message: "Please input your confirm password!",
                     },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue("password") === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          new Error("Mật khẩu không khớp!")
+                        );
+                      },
+                    }),
                   ]}
                 >
                   <Input.Password />
                 </Form.Item>
-                <Divider />
-                <div style={{ textAlign: "center" }}>
-                  <p>
-                    Nếu bạn không nhận được mã xác thực, vui lòng nhấn nút bên
-                    dưới để gửi lại mã xác thực.{" "}
-                    <span
-                      onClick={onResendCode}
-                      style={{
-                        color: "blue",
-                        cursor: "pointer",
-                        textDecoration: "underline",
-                      }}
-                    >
-                      Gửi lại mã xác thực
-                    </span>
-                  </p>
-                </div>
                 <Form.Item style={{ textAlign: "center" }}>
                   <Button type="primary" htmlType="submit" loading={loading}>
-                    Kích hoạt
+                    Thay đổi mật khẩu
                   </Button>
                 </Form.Item>
-              </Form>{" "}
+              </Form>
             </div>
           )}
           {current === 3 && (
             <div>
-              <h1>Tài khoản đã được xác thực</h1>
-              <p>Vui lòng đăng nhập để tiếp tục</p>
-              {setIsModalOpen(false)}
+              <h1 style={{ textAlign: "center" }}>Mật khẩu đã được thay đổi</h1>
+              <p style={{ textAlign: "center" }}>
+                Vui lòng đăng nhập để tiếp tục
+              </p>
+              {}
             </div>
           )}
         </div>

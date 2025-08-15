@@ -145,6 +145,7 @@ const Login = () => {
         userEmail={userEmail}
         isModalOpen={isModalChangePasswordOpen}
         setIsModalOpen={setIsModalChangePasswordOpen}
+        cansel
       />
     </>
   );

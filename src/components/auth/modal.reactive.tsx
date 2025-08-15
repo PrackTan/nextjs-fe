@@ -31,6 +31,7 @@ const ModalReactive = (props: any) => {
 
   const onFinishStep1 = async (values: LoginFormValues) => {
     const { email } = values;
+    setLoading(true);
     const res = await sendRequest<IBackendRes<IRegister>>({
       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/retry-mail-otp`,
       method: "POST",
@@ -48,10 +49,12 @@ const ModalReactive = (props: any) => {
         description: res.message as string,
       });
     }
+    setLoading(false);
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFinishStep2 = async (values: any) => {
+    setLoading(true);
     const { code } = values;
     console.log("check code", code);
     const res = await sendRequest<IBackendRes<IRegister>>({
@@ -70,8 +73,10 @@ const ModalReactive = (props: any) => {
         description: res.message as string,
       });
     }
+    setLoading(false);
   };
   const onResendCode = async () => {
+    setLoading(true);
     const res = await sendRequest<IBackendRes<IRegister>>({
       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/retry-mail-otp`,
       method: "POST",
