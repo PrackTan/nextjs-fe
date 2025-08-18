@@ -26,7 +26,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
         // console.log(">>>>>>>>>> check res from auth.ts", res);
         if (res.statusCode === 201) {
-          return res.data?.user;
+          return {
+            ...res.data?.user,
+            access_token: res.data?.access_token,
+          };
         } else if (+res.statusCode === 401) {
           throw new InvalidEmailPasswordError("Invalid credentials");
         } else if (+res.statusCode === 400) {

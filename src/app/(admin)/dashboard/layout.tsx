@@ -4,6 +4,7 @@ import AdminHeader from "@/components/layout/admin.header";
 import AdminSideBar from "@/components/layout/admin.sidebar";
 import { AdminContextProvider } from "@/library/admin.context";
 import { auth } from "@/auth";
+import { Session } from "next-auth";
 
 const AdminLayout = async ({
   children,
@@ -11,6 +12,7 @@ const AdminLayout = async ({
   children: React.ReactNode;
 }>) => {
   const session = await auth();
+  console.log(">>>>>>>>>> check session from layout", session);
   return (
     <AdminContextProvider>
       <div style={{ display: "flex" }}>
@@ -18,7 +20,7 @@ const AdminLayout = async ({
           <AdminSideBar />
         </div>
         <div className="right-side" style={{ flex: 1 }}>
-          <AdminHeader session={session} />
+          <AdminHeader session={session as Session} />
           <AdminContent>{children}</AdminContent>
           <AdminFooter />
         </div>
